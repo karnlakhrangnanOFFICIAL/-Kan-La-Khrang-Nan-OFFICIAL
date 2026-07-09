@@ -1,26 +1,27 @@
 // ============================================
 // KANLAKHRANGNAN Official - Team Page JS
+// อัปเดต: โหลดนักเตะชายจาก Google Apps Script API
 // ============================================
+
+// 🔗 API URL สำหรับดึงข้อมูลนักเตะ
+const API_PLAYERS_MEN = 'https://script.google.com/macros/s/AKfycbx1XcMAxsYaTm7AvRPg8q1CtiyXrCJXp27LX-Lh5V36JdBWPF87yXuyhkZm6hqwJAU3/exec?team=men';
+const API_PLAYERS_WOMEN = 'https://script.google.com/macros/s/AKfycbx1XcMAxsYaTm7AvRPg8q1CtiyXrCJXp27LX-Lh5V36JdBWPF87yXuyhkZm6hqwJAU3/exec?team=women';
 
 // ---------- TAB SYSTEM ----------
 function showTab(tabName) {
-  // Hide all tabs
   document.querySelectorAll('.tab-content').forEach(tab => {
     tab.classList.remove('active');
   });
   
-  // Remove active from all buttons
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.classList.remove('active');
   });
   
-  // Show selected tab
   const targetTab = document.getElementById('tab-' + tabName);
   if (targetTab) {
     targetTab.classList.add('active');
   }
   
-  // Activate button by data-tab attribute
   const buttons = document.querySelectorAll('.tab-btn');
   buttons.forEach(btn => {
     if (btn.getAttribute('data-tab') === tabName) {
@@ -29,7 +30,6 @@ function showTab(tabName) {
   });
 }
 
-// ---------- INIT TAB CLICK EVENTS ----------
 function initTabButtons() {
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', function() {
@@ -223,26 +223,27 @@ async function loadMenTable() {
   }
 }
 
+// ✅ โหลดนักเตะชายจาก API (Google Apps Script)
 async function loadMenPlayers() {
   const container = document.getElementById('menPlayersContainer');
   if (!container) return;
 
   try {
-    const response = await fetch('data/players-men.json');
+    const response = await fetch(API_PLAYERS_MEN);
     const players = await response.json();
-    
+
     if (!Array.isArray(players) || players.length === 0) {
-      container.innerHTML = '<div class="empty-state"><span class="empty-icon">👕</span><p>No player data yet</p></div>';
+      container.innerHTML = '<div class="empty-state"><span class="empty-icon">👕</span><p>No players found</p></div>';
       return;
     }
-    
+
     container.innerHTML = players.map(p => `
       <div class="player-card">
-        <img src="${p.image || 'assets/images/placeholder-player.svg'}" alt="${p.name}" onerror="this.src='assets/images/placeholder-player.svg'">
+        <img src="${p.image}" alt="${p.name}" onerror="this.src='assets/images/placeholder-player.svg'">
         <div class="player-info">
           <h3>${p.name}</h3>
           <span class="player-number">#${p.number || '?'}</span>
-          <span class="player-position">${p.position || 'N/A'}</span>
+          <span class="player-position">${p.position}</span>
           <div class="player-stats">
             <span>⚽ ${p.goals || 0} goals</span>
             <span>🎯 ${p.assists || 0} assists</span>
@@ -417,6 +418,7 @@ async function loadWomenTable() {
   }
 }
 
+// 👩 โหลดนักเตะหญิง — ยังใช้จากไฟล์ JSON (สามารถเปลี่ยนเป็น API ได้เช่นกัน)
 async function loadWomenPlayers() {
   const container = document.getElementById('womenPlayersContainer');
   if (!container) return;
@@ -457,7 +459,6 @@ async function loadWomenPlayers() {
 function initTeamPage() {
   const isWomenPage = window.location.pathname.includes('women');
 
-  // ✅ เปิดใช้ Tab
   initTabButtons();
 
   if (isWomenPage) {
@@ -469,7 +470,7 @@ function initTeamPage() {
     loadMenFixtures();
     loadMenResults();
     loadMenTable();
-    loadMenPlayers();
+    loadMenPlayers();   // ← ดึงจาก API แล้ว
   }
 }
 
